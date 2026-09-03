@@ -5,13 +5,20 @@ import { PrismaLibSql } from '@prisma/adapter-libsql'
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
 const getAdapter = () => {
-  if (!process.env.DATABASE_URL) return undefined;
-  const libsql = createClient({
-    url: process.env.DATABASE_URL,
-    authToken: process.env.TURSO_AUTH_TOKEN,
-  })
-  // @ts-ignore
-  return new PrismaLibSql(libsql);
+  const url = process.env.DATABASE_URL;
+  if (!url || url === 'undefined' || url === 'null') return undefined;
+  
+  try {
+    const libsql = createClient({
+      url,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    })
+    // @ts-ignore
+    return new PrismaLibSql(libsql);
+  } catch (e) {
+    console.warn("Failed to initialize libsql client:", e);
+    return undefined;
+  }
 }
 
 export const prisma =
