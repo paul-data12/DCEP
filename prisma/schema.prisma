@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Exam {
+  id               String        @id @default(uuid())
+  title            String
+  code             String        @unique
+  duration_minutes Int
+  passing_score    Int
+  total_questions  Int
+  questions        Question[]
+  exam_attempts    ExamAttempt[]
+  case_studies     CaseStudy[]
+}
+
+model CaseStudy {
+  id          String     @id @default(uuid())
+  exam_id     String
+  exam        Exam       @relation(fields: [exam_id], references: [id])
+  title       String
+  content     String
+  questions   Question[]
+}
+
+model Question {
+  id             String         @id @default(uuid())
+  exam_id        String
+  exam           Exam           @relation(fields: [exam_id], references: [id])
+  case_study_id  String?
+  case_study     CaseStudy?     @relation(fields: [case_study_id], references: [id])
+  domain_topic   String?
+  question_type  String?
+  question_text  String
+  explanation    String
+  is_verified    Boolean        @default(false)
+  source         String?
+  media_url      String?
+  metadata       String?
+  created_at     DateTime       @default(now())
+  options        Option[]
+  user_responses UserResponse[]
+}
+
+model Option {
+  id          String   @id @default(uuid())
+  question_id String
+  question    Question @relation(fields: [question_id], references: [id])
+  option_text String
+  is_correct  Boolean  @default(false)
+}
+
+model ExamAttempt {
+  id             String         @id @default(uuid())
+  user_id        String
+  user           User           @relation(fields: [user_id], references: [id])
+  exam_id        String
+  exam           Exam           @relation(fields: [exam_id], references: [id])
+  start_time     DateTime       @default(now())
+  end_time       DateTime?
+  is_submitted   Boolean        @default(false)
+  score          Float?
+  user_responses UserResponse[]
+}
+
+model UserResponse {
+  id                  String      @id @default(uuid())
+  attempt_id          String
+  attempt             ExamAttempt @relation(fields: [attempt_id], references: [id])
+  question_id         String
+  question            Question    @relation(fields: [question_id], references: [id])
+  selected_option_ids String      // JSON string representation
+  is_flagged          Boolean     @default(false)
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  password      String
+  name          String
+  role          String        @default("student")
+  created_at    DateTime      @default(now())
+  exam_attempts ExamAttempt[]
+}
