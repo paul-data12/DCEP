@@ -106,7 +106,7 @@ export default function AdminUsersPage() {
                             <div>
                               <p className="font-bold text-slate-900 flex items-center gap-2">
                                 {latestAttempt.exam.code}
-                                <span className={\`text-xs px-2 py-0.5 rounded \${latestAttempt.score >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}\`}>
+                                <span className={`text-xs px-2 py-0.5 rounded \${latestAttempt.score >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                                   {(latestAttempt.score * 10).toFixed(0)} / 1000
                                 </span>
                               </p>
