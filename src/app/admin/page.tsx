@@ -38,6 +38,7 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-4 text-sm">
               <span className="text-white font-medium border-b-2 border-brand-500 py-4">Questions</span>
               <Link href="/admin/codes" className="text-slate-400 hover:text-white transition-colors">Access Codes</Link>
+              <Link href="/admin/users" className="text-slate-400 hover:text-white transition-colors">Users & Scores</Link>
             </div>
           </div>
           <Link href="/" className="text-xs text-slate-400 hover:text-white transition-colors">← Back to Site</Link>

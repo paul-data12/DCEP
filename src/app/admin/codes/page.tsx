@@ -62,8 +62,9 @@ export default function AdminCodesPage() {
               <span className="text-sm font-bold tracking-tight">DCEP Admin</span>
             </div>
             <div className="flex items-center gap-4 text-sm">
-              <Link href="/admin" className="text-slate-400 hover:text-white">Questions</Link>
+              <Link href="/admin" className="text-slate-400 hover:text-white transition-colors">Questions</Link>
               <span className="text-white font-medium border-b-2 border-brand-500 py-4">Access Codes</span>
+              <Link href="/admin/users" className="text-slate-400 hover:text-white transition-colors">Users & Scores</Link>
             </div>
           </div>
           <Link href="/" className="text-xs text-slate-400 hover:text-white">← Back to Site</Link>
