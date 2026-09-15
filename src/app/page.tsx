@@ -243,7 +243,7 @@ export default async function Home() {
                         </div>
                         <div className="text-right">
                           <p className={`text-sm font-bold ${attempt.score >= attempt.exam.passing_score ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {attempt.score ? attempt.score.toFixed(1) : 0}%
+                            {attempt.score ? (attempt.score * 10).toFixed(0) : 0} / 1000
                           </p>
                           <p className="text-xs text-slate-500">Score</p>
                         </div>

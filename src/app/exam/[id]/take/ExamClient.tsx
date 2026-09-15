@@ -315,7 +315,7 @@ export default function ExamClient({ examId, durationMinutes, examTitle }: { exa
           {/* Score header */}
           <div className={`px-8 py-8 text-center shrink-0 ${passed ? 'bg-emerald-600' : 'bg-red-600'} text-white`}>
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/20 mb-4">
-              <span className="text-3xl font-black">{result.score.toFixed(0)}%</span>
+              <span className="text-3xl font-black">{(result.score * 10).toFixed(0)}<span className="text-lg opacity-70"> / 1000</span></span>
             </div>
             <h2 className="text-2xl font-bold">{passed ? 'Congratulations, You Passed!' : 'Exam Not Passed'}</h2>
             <p className="text-sm opacity-80 mt-1">{examTitle} — Full Exam Report</p>
