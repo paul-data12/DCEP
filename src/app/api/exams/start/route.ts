@@ -19,9 +19,26 @@ export async function POST(req: Request) {
       where: { id: examId },
     });
 
+
     if (!exam) {
       return NextResponse.json({ error: 'Exam not found' }, { status: 404 });
     }
+
+    if (user.role !== 'admin') {
+      const entitlement = await prisma.userEntitlement.findUnique({
+        where: {
+          user_id_exam_id: {
+            user_id: user.id as string,
+            exam_id: exam.id
+          }
+        }
+      });
+      
+      if (!entitlement) {
+        return NextResponse.json({ error: 'You do not have access to this exam. Please redeem an access code.' }, { status: 403 });
+      }
+    }
+
 
     // Fetch only verified questions
     const allVerifiedQuestions = await prisma.question.findMany({

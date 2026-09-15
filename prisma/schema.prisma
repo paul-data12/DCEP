@@ -18,6 +18,8 @@ model Exam {
   questions        Question[]
   exam_attempts    ExamAttempt[]
   case_studies     CaseStudy[]
+  access_codes     AccessCode[]
+  entitlements     UserEntitlement[]
 }
 
 model CaseStudy {
@@ -87,4 +89,31 @@ model User {
   role          String        @default("student")
   created_at    DateTime      @default(now())
   exam_attempts ExamAttempt[]
+  used_codes    AccessCode[]
+  entitlements  UserEntitlement[]
+}
+
+// Represents a code that grants access to a specific exam
+model AccessCode {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  exam_id     String
+  exam        Exam     @relation(fields: [exam_id], references: [id])
+  is_used     Boolean  @default(false)
+  used_by_id  String?
+  used_by     User?    @relation(fields: [used_by_id], references: [id])
+  used_at     DateTime?
+  created_at  DateTime @default(now())
+}
+
+// Represents an unlocked exam for a specific user
+model UserEntitlement {
+  id          String   @id @default(uuid())
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [id])
+  exam_id     String
+  exam        Exam     @relation(fields: [exam_id], references: [id])
+  granted_at  DateTime @default(now())
+
+  @@unique([user_id, exam_id])
 }

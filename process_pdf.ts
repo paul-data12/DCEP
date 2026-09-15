@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type, Schema } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import * as fs from 'fs';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -21,7 +21,7 @@ async function processBatch(textBatch: string) {
     ${textBatch}
   `;
 
-  const responseSchema: Schema = {
+  const responseSchema = {
     type: Type.ARRAY,
     items: {
       type: Type.OBJECT,

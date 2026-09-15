@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { getUser } from '@/lib/auth';
 import LogoutButton from '@/app/components/LogoutButton';
+import UnlockExamForm from '@/app/components/UnlockExamForm';
+import { prisma } from '@/lib/prisma';
 
 /* ── Exam data ────────────────────────────────────────────── */
 const exams = [
@@ -92,6 +94,30 @@ const features = [
 
 export default async function Home() {
   const user = await getUser();
+
+  let entitledExamCodes: string[] = [];
+  let pastAttempts: any[] = [];
+  
+  if (user) {
+    if (user.role === 'admin') {
+      const allExams = await prisma.exam.findMany();
+      entitledExamCodes = allExams.map(e => e.code);
+    } else {
+      const entitlements = await prisma.userEntitlement.findMany({
+        where: { user_id: user.id as string },
+        include: { exam: true }
+      });
+      entitledExamCodes = entitlements.map(e => e.exam.code);
+    }
+    
+    pastAttempts = await prisma.examAttempt.findMany({
+      where: { user_id: user.id as string, is_submitted: true },
+      include: { exam: true },
+      orderBy: { end_time: 'desc' },
+      take: 5
+    });
+  }
+
 
   return (
     <div className="min-h-screen bg-[#fafbfe] flex flex-col overflow-hidden font-display">
@@ -196,6 +222,41 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ── Dashboard Content (If Logged In) ─────────────── */}
+      {user && (
+        <section className="relative py-12 max-w-6xl mx-auto px-6 w-full">
+          <div className="grid md:grid-cols-2 gap-8">
+            <UnlockExamForm />
+            
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-12">
+              <h3 className="text-lg font-bold text-slate-900 mb-4">Recent Exam Attempts</h3>
+              {pastAttempts.length === 0 ? (
+                <p className="text-sm text-slate-500">You haven't completed any exams yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {pastAttempts.map(attempt => (
+                    <Link href={`/exam/${attempt.exam.code}/result/${attempt.id}`} key={attempt.id} className="block group">
+                      <div className="flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50 group-hover:border-indigo-200 group-hover:bg-indigo-50/50 transition-colors">
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{attempt.exam.code}</p>
+                          <p className="text-xs text-slate-500">{new Date(attempt.end_time).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-sm font-bold ${attempt.score >= attempt.exam.passing_score ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {attempt.score ? attempt.score.toFixed(1) : 0}%
+                          </p>
+                          <p className="text-xs text-slate-500">Score</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── Features ─────────────────────────────────────── */}
       <section className="relative py-24">
         <div className="max-w-6xl mx-auto px-6">
@@ -245,11 +306,12 @@ export default async function Home() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {exams.map((exam) => {
               const Icon = exam.icon;
+              const isUnlocked = user ? entitledExamCodes.includes(exam.code) : exam.available;
               return (
                 <div
                   key={exam.code}
                   className={`group relative flex flex-col rounded-2xl border bg-white transition-all duration-300
-                    ${exam.available
+                    ${isUnlocked
                       ? `border-slate-200/80 shadow-sm hover:-translate-y-1 ${exam.accentHover}`
                       : 'border-dashed border-slate-200 opacity-60'
                     }
@@ -283,7 +345,7 @@ export default async function Home() {
 
                   {/* Footer action */}
                   <div className="border-t border-slate-100 px-7 py-4">
-                    {exam.available ? (
+                    {isUnlocked ? (
                       <Link
                         href={`/exam/${exam.code}/take`}
                         className="flex items-center justify-between text-sm font-bold text-indigo-600 group-hover:text-indigo-700 transition-colors"
