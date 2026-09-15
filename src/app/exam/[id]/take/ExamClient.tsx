@@ -9,6 +9,7 @@ import {
   CircleDot, SquareCheck, Menu, X
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { marked } from 'marked';
 
 /* ─── Pre-Exam Briefing Screen ──────────────────────────────────── */
 function ExamBriefing({ examTitle, durationMinutes, onStart }: { examTitle: string; durationMinutes: number; onStart: () => void }) {
@@ -442,7 +443,7 @@ export default function ExamClient({ examId, durationMinutes, examTitle }: { exa
             </div>
             <div className="p-8 overflow-y-auto flex-1 bg-slate-50">
                <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm prose prose-slate max-w-none prose-h3:text-slate-800 prose-h3:border-b prose-h3:pb-2 prose-h3:mb-4 prose-p:text-slate-600 prose-p:leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: currentQ.case_study.content || '' }} />
+                    dangerouslySetInnerHTML={{ __html: marked.parse(currentQ.case_study.content || '') as string }} />
             </div>
             <div className="p-6 border-t border-slate-200 bg-white shrink-0 flex justify-end">
                <button 
@@ -564,7 +565,7 @@ export default function ExamClient({ examId, durationMinutes, examTitle }: { exa
                       <span className="text-xs bg-slate-800 px-2 py-1 rounded border border-slate-700">{currentQ.case_study.title}</span>
                     </div>
                     <div className="p-6 overflow-y-auto max-h-[60vh] lg:max-h-full">
-                      <div className="prose prose-sm prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: currentQ.case_study.content || '' }} />
+                      <div className="prose prose-sm prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: marked.parse(currentQ.case_study.content || '') as string }} />
                     </div>
                   </div>
                 )}

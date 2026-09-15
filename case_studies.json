@@ -1,0 +1,212 @@
+[
+  {
+    "title": "Case Study 1: Contoso, Ltd.",
+    "content": "### Overview\nContoso, Ltd. is a US-based health supplements company. Contoso has two divisions named Sales and Research. The Sales division contains two departments named Online Sales and Retail Sales. The Research division assigns internally developed product lines to individual teams of researchers and analysts.\n\n### Existing Environment\n\n#### Identity Environment\nContoso has a Microsoft Entra tenant named contoso.com. The tenant contains two groups named ResearchReviewers Group1 and ResearchReviewers Group2.\n\n#### Data Environment\nContoso has the following data environment:\n- The Sales division uses a Microsoft Power BI Premium capacity.\n- The semantic model of the Online Sales department includes a fact table named Orders that uses Import mode. In the system of origin, the OrderID value represents the sequence in which orders are created.\n- The Research department uses an on-premises, third-party data warehousing product.\n- Fabric is enabled for contoso.com.\n- An Azure Data Lake Storage Gen2 storage account named storage1 contains Research division data for a product line named Productline1. The data is in the delta format.\n- A Data Lake Storage Gen2 storage account named storage2 contains Research division data for a product line named Productline2. The data is in the CSV format.\n\n### Requirements\n\n#### Planned Changes\nContoso plans to make the following changes:\n- Enable support for Fabric in the Power BI Premium capacity used by the Sales division.\n- Make all the data for the Sales division and the Research division available in Fabric.\n- For the Research division, create two Fabric workspaces named Productline1ws and Productline2ws.\n- In Productline1ws, create a lakehouse named Lakehouse1.\n- In Lakehouse1, create a shortcut to storage1 named ResearchProduct.\n\n#### Data Analytics Requirements\nContoso identifies the following data analytics requirements:\n- All the workspaces for the Sales division and the Research division must support all Fabric experiences.\n- The Research division workspaces must use a dedicated, on-demand capacity that has per-minute billing.\n- The Research division workspaces must be grouped together logically to support OneLake data hub filtering based on the department name.\n- For the Research division workspaces, the members of ResearchReviewers Group1 must be able to read lakehouse and warehouse data and shortcuts by using SQL endpoints.\n- For the Research division workspaces, the members of ResearchReviewers Group2 must be able to read lakehouse data by using Lakehouse explorer.\n- All the semantic models and reports for the Research division must use version control that supports branching.\n\n#### Data Preparation Requirements\nContoso identifies the following data preparation requirements:\n- The Research division data for Productline1 must be retrieved from Lakehouse1 by using Fabric notebooks.\n- All the Research division data in the lakehouses must be presented as managed tables in Lakehouse explorer.\n\n#### Semantic Model Requirements\nContoso identifies the following requirements for implementing and managing semantic models:\n- The number of rows added to the Orders table during refreshes must be minimized.\n- The semantic models in the Research division workspaces must use Direct Lake mode.\n\n#### General Requirements\nContoso identifies the following high-level requirements that must be considered for all solutions:\n- Follow the principle of least privilege when applicable.\n- Minimize implementation and maintenance effort when possible.",
+    "questions": [
+      {
+        "question_text": "You need to ensure that Contoso can use version control to meet the data analytics requirements and the general requirements. What should you do?",
+        "domain_topic": "Maintain and Administer Solutions",
+        "question_type": "single_choice",
+        "explanation": "Contoso needs version control for its data analytics and general requirements. In Microsoft Fabric and Power BI, version control is best managed through Git integration using Azure Repos or GitHub. Azure Repos is a Git-based repository within Azure DevOps, providing versioning, tracking, and collaboration for code, reports, and semantic models.",
+        "options": [
+          { "option_text": "Store all the semantic models and reports in Data Lake Gen2 storage.", "is_correct": false },
+          { "option_text": "Modify the settings of the Research workspaces to use a GitHub repository.", "is_correct": false },
+          { "option_text": "Modify the settings of the Research division workspaces to use an Azure Repos repository.", "is_correct": true },
+          { "option_text": "Store all the semantic models and reports in Microsoft OneDrive.", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "You need to recommend a solution to group the Research division workspaces. What should you include in the recommendation?",
+        "domain_topic": "Maintain and Administer Solutions",
+        "question_type": "single_choice",
+        "explanation": "Domain allows you to group workspaces based on their purpose or business context (Research division). The Fabric Admin Portal is the primary management interface used to configure domain settings.",
+        "options": [
+          { "option_text": "Grouping method: Domain; Tool: The Fabric Admin portal", "is_correct": true },
+          { "option_text": "Grouping method: Capacity; Tool: OneLake data hub", "is_correct": false },
+          { "option_text": "Grouping method: Tenant; Tool: The Microsoft Entra admin center", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "You need to refresh the Orders table of the Online Sales department. The solution must meet the semantic model requirements. What should you include in the solution?",
+        "domain_topic": "Prepare and Transform Data",
+        "question_type": "single_choice",
+        "explanation": "A dataflow can be used to retrieve the maximum OrderID number stored in the destination lakehouse table. This number can then be used to specify the starting point for incremental loading, minimizing the number of rows added during refreshes.",
+        "options": [
+          { "option_text": "an Azure Data Factory pipeline that executes a Stored procedure activity to retrieve the maximum value of the OrderID column in the destination lakehouse", "is_correct": false },
+          { "option_text": "an Azure Data Factory pipeline that executes a Stored procedure activity to retrieve the minimum value of the OrderID column in the destination lakehouse", "is_correct": false },
+          { "option_text": "an Azure Data Factory pipeline that executes a dataflow to retrieve the minimum value of the OrderID column in the destination lakehouse", "is_correct": false },
+          { "option_text": "an Azure Data Factory pipeline that executes a dataflow to retrieve the maximum value of the OrderID column in the destination lakehouse", "is_correct": true }
+        ]
+      },
+      {
+        "question_text": "Which syntax should you use in a notebook to access the Research division data for Productline1?",
+        "domain_topic": "Prepare and Transform Data",
+        "question_type": "single_choice",
+        "explanation": "Once a shortcut is created in the Lakehouse, using spark.sql(\"SELECT * FROM Lakehouse1.ResearchProduct\") provides simple SQL-based tabular access directly to the entity.",
+        "options": [
+          { "option_text": "spark.read.format(\"delta\").load(\"Tables/productline1/ResearchProduct\")", "is_correct": false },
+          { "option_text": "spark.sql(\"SELECT * FROM Lakehouse1.ResearchProduct\")", "is_correct": true },
+          { "option_text": "external_table('Tables/ResearchProduct')", "is_correct": false },
+          { "option_text": "external_table (ResearchProduct)", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "You need to recommend which type of Fabric capacity SKU meets the data analytics requirements for the Research division. What should you recommend?",
+        "domain_topic": "Maintain and Administer Solutions",
+        "question_type": "single_choice",
+        "explanation": "Fabric capacity SKUs start with F and allow for dedicated, on-demand pay-as-you-go capacity billed per minute.",
+        "options": [
+          { "option_text": "A", "is_correct": false },
+          { "option_text": "EM", "is_correct": false },
+          { "option_text": "P", "is_correct": false },
+          { "option_text": "F", "is_correct": true }
+        ]
+      },
+      {
+        "question_text": "You need to migrate the Research division data for Productline1. The solution must meet the data preparation requirements. How should you complete the code?",
+        "domain_topic": "Prepare and Transform Data",
+        "question_type": "single_choice",
+        "explanation": "To present data as managed tables in Lakehouse Explorer, write the output as format(\"delta\") and save it to the \"Tables/productline1\" directory.",
+        "options": [
+          { "option_text": "Format: delta; Path: Tables/productline1", "is_correct": true },
+          { "option_text": "Format: CSV; Path: productline1", "is_correct": false },
+          { "option_text": "Format: parquet; Path: Tables/research/productline1", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "What should you use to implement calculation groups for the Research division semantic models?",
+        "domain_topic": "Implement and Manage Semantic Models",
+        "question_type": "single_choice",
+        "explanation": "Tabular Editor provides an efficient, standard external tool environment for creating and managing calculation groups in tabular semantic models.",
+        "options": [
+          { "option_text": "Microsoft Power BI Desktop", "is_correct": false },
+          { "option_text": "the Power BI service", "is_correct": false },
+          { "option_text": "DAX Studio", "is_correct": false },
+          { "option_text": "Tabular Editor", "is_correct": true }
+        ]
+      },
+      {
+        "question_text": "Which workspace role assignments should you recommend for ResearchReviewers Group1 and ResearchReviewers Group2?",
+        "domain_topic": "Maintain and Administer Solutions",
+        "question_type": "single_choice",
+        "explanation": "ResearchReviewers Group1 members need read-only querying access via SQL endpoints, which is fulfilled by the Viewer role. ResearchReviewers Group2 members require direct interaction via Lakehouse Explorer, requiring Contributor access.",
+        "options": [
+          { "option_text": "ResearchReviewers Group1: Viewer; ResearchReviewers Group2: Contributor", "is_correct": true },
+          { "option_text": "ResearchReviewers Group1: Member; ResearchReviewers Group2: Viewer", "is_correct": false },
+          { "option_text": "ResearchReviewers Group1: Contributor; ResearchReviewers Group2: Member", "is_correct": false }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Case Study 2: Litware, Inc.",
+    "content": "### Overview\nLitware, Inc. is a manufacturing company that has offices throughout North America. The analytics team at Litware contains data engineers, analytics engineers, data analysts, and data scientists.\n\n### Existing Environment\n\n#### Fabric Environment\nLitware has been using a Microsoft Power BI tenant for three years. Litware has NOT enabled any Fabric capacities and features.\n\n#### Available Data\nLitware has data that must be analyzed as shown in the following table:\n- **Customer data**: Source - Customer relationship management (CRM) system | Size - 50 MB\n- **Product data**: Source - Customer relationship management (CRM) system | Size - 200 MB\n- **Customer satisfaction surveys**: Source - SurveyMonkey | Size - 500 GB\n\nThe Product data contains a single table with ProductID (Integer), ProductName (String), ProductCategory (String), and ListPrice (Decimal).\n\nThe customer satisfaction data contains Survey, Question, and Response tables. For each survey submitted:\n- One row is added to the Survey table.\n- One row is added to the Response table for each question in the survey.\n- The Question table contains the text of each survey question. The third question in each survey response is an overall satisfaction score. Customers can submit a survey after each purchase.\n\n#### User Problems\n- The analytics team has large volumes of data, some of which is semi-structured. The team wants to use Fabric to create a new data store.\n- Product data is often classified into three pricing groups: high, medium, and low. This logic is implemented in several databases and semantic models, but the logic does NOT always match across implementations.\n\n### Requirements\n\n#### Planned Changes\nLitware plans to enable Fabric features in the existing tenant. The analytics team will create a new data store as a proof of concept (PoC). The remaining Litware users will only get access to the Fabric features once the PoC is complete. The PoC will be completed by using a Fabric trial capacity.\n\nThe following three workspaces will be created:\n- **AnalyticsPOC**: Will contain the data store, semantic models, reports, pipelines, dataflow, and notebooks used to populate the data store.\n- **DataEngPOC**: Will contain all the pipelines, dataflows, and notebooks used to populate OneLake.\n- **DataSciPOC**: Will contain all the notebooks and reports created by the data scientists.\n\nThe following will be created in the AnalyticsPOC workspace:\n- A data store (type to be decided)\n- A custom semantic model\n- A default semantic model\n- Interactive reports\n\nThe data engineers will create data pipelines to load data to OneLake either hourly or daily depending on the data source. The analytics engineers will create processes to ingest, transform, and load the data to the data store in the AnalyticsPOC workspace daily. Whenever possible, the data engineers will use low-code tools for data ingestion. The choice of which data cleansing and transformation tools to use will be at the data engineers' discretion.\n\nAll the semantic models and reports in the AnalyticsPOC workspace will use the data store as the sole data source.\n\n#### Technical Requirements\nThe data store must support the following:\n- Read access by using T-SQL or Python\n- Semi-structured and unstructured data\n- Row-level security (RLS) for users executing T-SQL queries\n\nFiles loaded by the data engineers to OneLake will be stored in the Parquet format and will meet Delta Lake specifications.\nData will be loaded without transformation in one area of the AnalyticsPOC data store. The data will then be cleansed, merged, and transformed into a dimensional model.\nThe data load process must ensure that the raw and cleansed data is updated completely before populating the dimensional model.\nThe dimensional model must contain a date dimension. There is no existing data source for the date dimension. The Litware fiscal year matches the calendar year. The date dimension must always contain dates from 2010 through the end of the current year.\n\nThe product pricing group logic must be maintained by the analytics engineers in a single location. The pricing group data must be made available in the data store for T-SQL queries and in the default semantic model. The following logic must be used:\n- List prices that are less than or equal to 50 are in the low pricing group.\n- List prices that are greater than 50 and less than or equal to 1,000 are in the medium pricing group.\n- List prices that are greater than 1,000 are in the high pricing group.\n\n#### Security Requirements\nOnly Fabric administrators and the analytics team must be able to see the Fabric items created as part of the PoC.\nLitware identifies the following security requirements for the Fabric items in the AnalyticsPOC workspace:\n- Fabric administrators will be the workspace administrators.\n- The data engineers must be able to read from and write to the data store. No access must be granted to datasets or reports.\n- The analytics engineers must be able to read from, write to, and create schemas in the data store. They also must be able to create and share semantic models with the data analysts and view and modify all reports in the workspace.\n- The data scientists must be able to read from the data store, but not write to it. They will access the data by using a Spark notebook.\n- The data analysts must have read access to only the dimensional model objects in the data store. They also must have access to create Power BI reports by using the semantic models created by the analytics engineers.\n- The date dimension must be available to all users of the data store.\n- The principle of least privilege must be followed.\n\nBoth the default and custom semantic models must include only tables or views from the dimensional model in the data store. Litware already has Microsoft Entra security groups: FabricAdmins, AnalyticsTeam, DataAnalysts, DataScientists, DataEngineers, and AnalyticsEngineers.\n\n#### Report Requirements\nThe data analysts must create a customer satisfaction report that meets the following requirements:\n- Enables a user to select a product to filter customer survey responses to only those who have purchased that product.\n- Displays the average overall satisfaction score of all the surveys submitted during the last 12 months up to a selected date.\n- Shows data as soon as the data is updated in the data store.\n- Ensures that the report and the semantic model only contain data from the current and previous year.\n- Ensures that the report respects any table-level security specified in the source data store.\n- Minimizes the execution time of report queries.",
+    "questions": [
+      {
+        "question_text": "You need to assign permissions for the data store in the AnalyticsPOC workspace. The solution must meet the security requirements. Which additional permissions should you assign when you share the data store?",
+        "domain_topic": "Maintain and Administer Solutions",
+        "question_type": "single_choice",
+        "explanation": "Data Engineers need 'Read All Apache Spark' to manage Spark layers. Data Analysts require 'Build Reports on the default dataset' to produce reports. Data Scientists need 'Read All SQL analytics endpoint data' to programmatically query curated datasets.",
+        "options": [
+          { "option_text": "DataEngineers: Read All Apache Spark; DataAnalysts: Build Reports on the default dataset; DataScientists: Read All SQL analytics endpoint data", "is_correct": true },
+          { "option_text": "DataEngineers: Build Reports on the default dataset; DataAnalysts: Read All Apache Spark; DataScientists: Read All SQL analytics endpoint data", "is_correct": false },
+          { "option_text": "DataEngineers: Read All SQL analytics endpoint data; DataAnalysts: Build Reports on the default dataset; DataScientists: Read All Apache Spark", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "You need to create a DAX measure to calculate the average overall satisfaction score. How should you complete the DAX code?",
+        "domain_topic": "Implement and Manage Semantic Models",
+        "question_type": "single_choice",
+        "explanation": "Use AVERAGE('Survey'[Response Value]) to aggregate numeric survey responses and apply the 'Period' variable inside CALCULATE to compute over the 12-month date window.",
+        "options": [
+          { "option_text": "CALCULATE(AVERAGE('Survey'[Response Value]), Period, 'Survey Question'[Question Title] = \"Overall Satisfaction\")", "is_correct": true },
+          { "option_text": "CALCULATE(AVERAGEA('Question'[Question Text]), LastCurrentDate, 'Survey Question'[Question Title] = \"Overall Satisfaction\")", "is_correct": false },
+          { "option_text": "CALCULATE(AVERAGEX(VALUES('Survey'[Customer Key]), NumberOfMonths), Period)", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "You need to resolve the issue with the pricing group classification. How should you complete the T-SQL statement?",
+        "domain_topic": "Prepare and Transform Data",
+        "question_type": "single_choice",
+        "explanation": "Create a VIEW over the Products table using a CASE statement. The range check for the medium pricing group should be 'WHEN ListPrice BETWEEN 50 AND 1000 THEN 'medium'' to correctly cover boundary price values.",
+        "options": [
+          { "option_text": "CREATE VIEW [dbo].[ProductsWithPricingGroup] AS SELECT ProductId, ProductName, ProductCategory, ListPrice, CASE WHEN ListPrice <= 50 THEN 'low' WHEN ListPrice BETWEEN 50 AND 1000 THEN 'medium' WHEN ListPrice > 1000 THEN 'high' END AS PricingGroup FROM dbo.Products", "is_correct": true },
+          { "option_text": "CREATE TABLE [dbo].[ProductsWithPricingGroup] AS SELECT ProductId, ProductName, ProductCategory, ListPrice, IIF(ListPrice <= 50, 'low', 'medium') AS PricingGroup FROM dbo.Products", "is_correct": false },
+          { "option_text": "CREATE PROCEDURE [dbo].[ProductsWithPricingGroup] AS SELECT ProductId, ProductName, ProductCategory, ListPrice, COALESCE(ListPrice, 50) FROM dbo.Products", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "What should you recommend using to ingest the customer data into the data store in the AnalyticsPOC workspace?",
+        "domain_topic": "Prepare and Transform Data",
+        "question_type": "single_choice",
+        "explanation": "A Dataflow (Dataflows Gen2) provides a low-code visual ETL tool suitable for ingesting and transforming operational data into Fabric.",
+        "options": [
+          { "option_text": "a stored procedure", "is_correct": false },
+          { "option_text": "a pipeline that contains a KQL activity", "is_correct": false },
+          { "option_text": "a Spark notebook", "is_correct": false },
+          { "option_text": "a dataflow", "is_correct": true }
+        ]
+      },
+      {
+        "question_text": "Which type of data store should you recommend in the AnalyticsPOC workspace?",
+        "domain_topic": "Prepare and Transform Data",
+        "question_type": "single_choice",
+        "explanation": "A Lakehouse handles both semi-structured/unstructured data and structured Delta tables while supporting T-SQL querying and Python/Spark analysis.",
+        "options": [
+          { "option_text": "a data lake", "is_correct": false },
+          { "option_text": "a warehouse", "is_correct": false },
+          { "option_text": "a lakehouse", "is_correct": true },
+          { "option_text": "an external Hive metastore", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "You need to recommend a solution to prepare the tenant for the PoC. Which two actions should you recommend performing from the Fabric Admin portal?",
+        "domain_topic": "Maintain and Administer Solutions",
+        "question_type": "multi_select",
+        "explanation": "Enabling paid trial features and item creation capability specifically for assigned Entra security groups enforces governance and follows the principle of least privilege.",
+        "options": [
+          { "option_text": "Enable the Users can try Microsoft Fabric paid features option for the entire organization.", "is_correct": false },
+          { "option_text": "Enable the Users can try Microsoft Fabric paid features option for specific security groups.", "is_correct": true },
+          { "option_text": "Enable the Allow Azure Active Directory guest users to access Microsoft Fabric option for specific security groups.", "is_correct": false },
+          { "option_text": "Enable the Users can create Fabric items option and exclude specific security groups.", "is_correct": false },
+          { "option_text": "Enable the Users can create Fabric items option for specific security groups.", "is_correct": true }
+        ]
+      },
+      {
+        "question_text": "You need to design a semantic model for the customer satisfaction report. Which data source authentication method and mode should you use?",
+        "domain_topic": "Implement and Manage Semantic Models",
+        "question_type": "single_choice",
+        "explanation": "Single sign-on (SSO) authentication respects table-level security rules directly from the source. Direct Lake mode queries OneLake Delta tables with optimal performance without data import.",
+        "options": [
+          { "option_text": "Authentication method: Single sign-on (SSO) authentication; Mode: Direct Lake", "is_correct": true },
+          { "option_text": "Authentication method: Basic authentication; Mode: Import", "is_correct": false },
+          { "option_text": "Authentication method: Service principal authentication; Mode: DirectQuery", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "You need to implement the date dimension in the data store. The solution must meet the technical requirements. What are two ways to achieve the goal?",
+        "domain_topic": "Prepare and Transform Data",
+        "question_type": "multi_select",
+        "explanation": "Populating a date dimension table can be accomplished visually using Dataflows Gen2 or programmatically using a Stored Procedure activity inside a data pipeline.",
+        "options": [
+          { "option_text": "Populate the date dimension table by using a dataflow.", "is_correct": true },
+          { "option_text": "Populate the date dimension table by using a Copy activity in a pipeline.", "is_correct": false },
+          { "option_text": "Populate the date dimension view by using T-SQL.", "is_correct": false },
+          { "option_text": "Populate the date dimension table by using a Stored procedure activity in a pipeline.", "is_correct": true }
+        ]
+      },
+      {
+        "question_text": "You need to ensure the data loading activities in the AnalyticsPOC workspace are executed in the appropriate sequence. The solution must meet the technical requirements. What should you do?",
+        "domain_topic": "Prepare and Transform Data",
+        "question_type": "single_choice",
+        "explanation": "Creating a pipeline with explicit activity execution dependencies ensures that raw and cleansed data layers finish processing completely before populating the dimensional model.",
+        "options": [
+          { "option_text": "Create a dataflow that has multiple steps and schedule the dataflow.", "is_correct": false },
+          { "option_text": "Create and schedule a Spark notebook.", "is_correct": false },
+          { "option_text": "Create and schedule a Spark job definition.", "is_correct": false },
+          { "option_text": "Create a pipeline that has dependencies between activities and schedule the pipeline.", "is_correct": true }
+        ]
+      }
+    ]
+  }
+]
