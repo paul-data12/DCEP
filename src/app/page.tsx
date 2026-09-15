@@ -2,7 +2,7 @@ import Link from 'next/link';
 import {
   ArrowRight, BookOpen, Clock, ShieldCheck, Target, Award,
   Zap, BarChart3, Lock, CheckCircle2, Sparkles, GraduationCap,
-  Timer, Brain, LineChart,
+  Timer, Brain, LineChart, Database,
 } from 'lucide-react';
 import { getUser } from '@/lib/auth';
 import LogoutButton from '@/app/components/LogoutButton';
@@ -11,6 +11,23 @@ import { prisma } from '@/lib/prisma';
 
 /* ── Exam data ────────────────────────────────────────────── */
 const exams = [
+  {
+    code: 'DP-600',
+    name: 'Fabric (DP-600)',
+    full: 'Microsoft Certified: Fabric Analytics Engineer Associate',
+    desc: 'Plan, implement, and manage data analytics solutions in Microsoft Fabric. Covers data ingestion, transformation, and modeling.',
+    icon: Database,
+    available: true,
+    questions: '50',
+    duration: '100',
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-blue-600',
+    ringColor: 'ring-blue-100',
+    badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+    badgeText: 'Live',
+    accentHover: 'group-hover:border-blue-200 group-hover:shadow-lg group-hover:shadow-blue-100/50',
+  },
+
   {
     code: 'MCDA-101',
     name: 'MCDA (PL-300)',
@@ -77,7 +94,7 @@ const features = [
     bg: 'bg-indigo-50',
   },
   {
-    icon: LineChart,
+    icon: LineChart, Database,
     title: 'Instant Diagnostics',
     desc: 'Domain-level breakdown of performance with correct answers and explanations post-exam.',
     color: 'text-emerald-600',
