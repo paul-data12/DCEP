@@ -15,24 +15,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'attemptId is required' }, { status: 400 });
     }
 
-    const attempt = await prisma.examAttempt.findUnique({
+const attempt = await prisma.examAttempt.findUnique({
       where: { id: attemptId },
       include: {
+        user_responses: true,
         exam: {
           include: {
             questions: {
-              include: {
-                options: true
-              }
+              include: { options: true }
             }
           }
-        },
-        user_responses: true
+        }
       }
     });
 
     if (!attempt || attempt.is_submitted) {
       return NextResponse.json({ error: 'Invalid or already submitted attempt' }, { status: 400 });
+    }
+
+    if (attempt.user_id !== user.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    // Time enforcement (with 2 min grace period for network delays)
+    const elapsedMinutes = (Date.now() - attempt.start_time.getTime()) / 60000;
+    if (elapsedMinutes > attempt.exam.duration_minutes + 2) {
+      return NextResponse.json({ error: 'Exam time expired' }, { status: 400 });
     }
 
     const { exam, user_responses } = attempt;
@@ -46,7 +54,7 @@ export async function POST(req: Request) {
     const diagnostic = [];
 
     for (const question of testQuestions) {
-      const response = user_responses.find(r => r.question_id === question.id);
+      const response = attempt.user_responses.find((r: any) => r.question_id === question.id);
       const correctOptionIds = question.options.filter((o: any) => o.is_correct).map((o: any) => o.id);
       
       let selectedOptionIds: string[] = [];

@@ -11,8 +11,22 @@ export async function PUT(req: Request) {
 
     const { attemptId, questionId, selectedOptionIds, isFlagged } = await req.json();
 
-    if (!attemptId || !questionId) {
+if (!attemptId || !questionId) {
       return NextResponse.json({ error: 'attemptId and questionId are required' }, { status: 400 });
+    }
+
+    const attempt = await prisma.examAttempt.findUnique({
+      where: { id: attemptId },
+      include: { exam: true }
+    });
+
+    if (!attempt || attempt.is_submitted || attempt.user_id !== user.id) {
+      return NextResponse.json({ error: 'Unauthorized or already submitted' }, { status: 403 });
+    }
+
+    const elapsedMinutes = (Date.now() - attempt.start_time.getTime()) / 60000;
+    if (elapsedMinutes > attempt.exam.duration_minutes + 2) {
+      return NextResponse.json({ error: 'Exam time expired' }, { status: 400 });
     }
 
     // Upsert user response

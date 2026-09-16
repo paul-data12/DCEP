@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const secretKey = process.env.JWT_SECRET || 'super-secret-development-key';
+const secretKey = process.env.JWT_SECRET || 'fallback-key-do-not-use-in-prod';
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) { console.warn('CRITICAL: JWT_SECRET is not set in production!'); }
 const key = new TextEncoder().encode(secretKey);
 
 async function verifyTokenEdge(token: string) {

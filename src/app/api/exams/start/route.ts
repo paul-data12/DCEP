@@ -162,6 +162,16 @@ export async function POST(req: Request) {
       options: shuffle(q.options),
     }));
 
+
+    // Delete any existing unsubmitted attempts for this user and exam to prevent simultaneous attempt harvesting
+    await prisma.examAttempt.deleteMany({
+      where: {
+        user_id: user.id as string,
+        exam_id: exam.id,
+        is_submitted: false,
+      }
+    });
+
     // Create an exam attempt
     const attempt = await prisma.examAttempt.create({
       data: {
