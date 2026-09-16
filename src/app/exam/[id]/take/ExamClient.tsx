@@ -604,6 +604,16 @@ export default function ExamClient({ examId, durationMinutes, examTitle }: { exa
                     {(() => {
                       const meta = currentQ.metadata ? JSON.parse(currentQ.metadata) : {};
 
+                      // Build effective options: use DB options if available, otherwise synthesize from metadata
+                      let effectiveOptions = currentQ.options;
+                      if ((!effectiveOptions || effectiveOptions.length === 0) && meta.correct_mapping) {
+                        const uniqueValues = [...new Set(Object.values(meta.correct_mapping) as string[])];
+                        effectiveOptions = uniqueValues.map((val: string, idx: number) => ({
+                          id: `synth-${idx}-${val}`,
+                          option_text: val,
+                        }));
+                      }
+
                       // MATRIX (Yes/No rows)
                       if (currentQ.question_type === 'matrix') {
                         const rows = meta.rows || [];
@@ -613,7 +623,7 @@ export default function ExamClient({ examId, durationMinutes, examTitle }: { exa
                               <thead className="bg-slate-50 text-slate-500 uppercase text-xs font-bold border-b border-slate-200">
                                 <tr>
                                   <th className="px-4 py-3 w-1/2">Statement</th>
-                                  {currentQ.options.map((o: any) => (
+                                  {effectiveOptions.map((o: any) => (
                                     <th key={o.id} className="px-4 py-3 text-center">{o.option_text}</th>
                                   ))}
                                 </tr>
@@ -622,7 +632,7 @@ export default function ExamClient({ examId, durationMinutes, examTitle }: { exa
                                 {rows.map((rowText: string, rIdx: number) => (
                                   <tr key={rIdx} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="px-4 py-3 font-medium text-slate-700">{rowText}</td>
-                                    {currentQ.options.map((o: any) => {
+                                    {effectiveOptions.map((o: any) => {
                                       const complexId = `${rIdx}:${o.id}`;
                                       const isSelected = currentR.selected.includes(complexId);
                                       return (
@@ -648,7 +658,7 @@ export default function ExamClient({ examId, durationMinutes, examTitle }: { exa
                           <div className="space-y-4">
                             {zones.map((zoneText: string, zIdx: number) => {
                               const selectedOptionId = currentR.selected.find(s => s.startsWith(`${zIdx}:`))?.split(':')[1];
-                              const selectedOption = currentQ.options.find((o: any) => o.id === selectedOptionId);
+                              const selectedOption = effectiveOptions.find((o: any) => o.id === selectedOptionId);
                               return (
                                 <div key={zIdx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200 gap-4">
                                   <span className="font-semibold text-slate-700">{zoneText}</span>
@@ -659,7 +669,7 @@ export default function ExamClient({ examId, durationMinutes, examTitle }: { exa
                                       onChange={(e) => handleComplexToggle(`${zIdx}:${e.target.value}`, 'drag_drop')}
                                     >
                                       <option value="" disabled>Select match...</option>
-                                      {currentQ.options.map((o: any) => (
+                                      {effectiveOptions.map((o: any) => (
                                         <option key={o.id} value={o.id}>{o.option_text}</option>
                                       ))}
                                     </select>
