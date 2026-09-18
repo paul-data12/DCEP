@@ -36,7 +36,9 @@ export async function POST(req: Request) {
     let code = '';
     for (let i = 0; i < 12; i++) {
       if (i > 0 && i % 4 === 0) code += '-';
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+      const randomArray = new Uint32Array(1);
+      crypto.getRandomValues(randomArray);
+      code += chars.charAt(randomArray[0] % chars.length);
     }
     return code;
   };

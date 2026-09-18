@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { signToken } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
+
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  const { success, resetTime } = rateLimit(ip, 10, 60 * 1000); // 10 attempts per minute
+  if (!success) {
+    return NextResponse.json({ error: 'Too many login attempts. Please try again later.' }, { status: 429 });
+  }
     const { email, password } = await req.json();
 
     if (!email || !password) {

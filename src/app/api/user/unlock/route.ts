@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
 import { getUser } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
+
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  const { success, resetTime } = rateLimit(ip, 5, 60 * 1000); // 5 attempts per minute
+  if (!success) {
+    return NextResponse.json({ error: 'Too many attempts. Please try again later.' }, { status: 429 });
+  }
     const user = await getUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
